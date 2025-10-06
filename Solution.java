@@ -3,42 +3,42 @@ import java.util.Arrays;
 
 public class Solution {
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         
-        int totalReceivers = input.nextInt();
-        int maxLumosSpells = input.nextInt();
+        int n = sc.nextInt();
+        int k = sc.nextInt();
         
-        int[] receiverPositions = new int[totalReceivers];
-        for (int idx = 0; idx < totalReceivers; idx++) {
-            receiverPositions[idx] = input.nextInt();
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
         }
         
-        Arrays.sort(receiverPositions);
+        Arrays.sort(arr);
         
-        long searchLeft = 0;
-        long searchRight = (long) receiverPositions[totalReceivers - 1] - receiverPositions[0];
+        int low = 0;
+        int high = arr[n - 1] - arr[0];
         
-        while (searchLeft < searchRight) {
-            long midLength = searchLeft + (searchRight - searchLeft) / 2;
+        while (low < high) {
+            int middle = low + (high - low) / 2;
             
-            int spellsNeeded = 1;
-            long coverageEnd = receiverPositions[0] + midLength;
+            int count = 1;
+            int border = arr[0] + middle;
             
-            for (int pos = 1; pos < totalReceivers; pos++) {
-                if (receiverPositions[pos] > coverageEnd) {
-                    spellsNeeded++;
-                    coverageEnd = receiverPositions[pos] + midLength;
+            for (int j = 1; j < n; j++) {
+                if (arr[j] > border) {
+                    count++;
+                    border = arr[j] + middle;
                 }
             }
             
-            if (spellsNeeded <= maxLumosSpells) {
-                searchRight = midLength;
+            if (count <= k) {
+                high = middle;
             } else {
-                searchLeft = midLength + 1;
+                low = middle + 1;
             }
         }
         
-        System.out.println(searchLeft);
-        input.close();
+        System.out.println(low);
+        sc.close();
     }
 }
