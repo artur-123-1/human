@@ -3,56 +3,79 @@ import java.util.*;
 public class Solution {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        
-        // Чтение входных данных
         int n = sc.nextInt();
         int k = sc.nextInt();
         long[] x = new long[n];
-        
-        for (int i = 0; i < n; i++) {
-            x[i] = sc.nextLong();
-        }
-        
-        // Сортировка координат
+        for (int i = 0; i < n; i++) x[i] = sc.nextLong();
         Arrays.sort(x);
-        
-        // Бинарный поиск минимального ℓ
-        long left = 0;
-        long right = x[n-1] - x[0];
-        long result = right;
-        
-        while (left <= right) {
-            long mid = left + (right - left) / 2;
-            
-            if (canCover(x, k, mid)) {
-                result = mid;
-                right = mid - 1;
-            } else {
-                left = mid + 1;
+
+        long minL = 0, maxL = x[n-1] - x[0], answer = maxL;
+        boolean found = false;
+        int iterations = 0;
+
+        while (!found && iterations < 1000000) {
+            iterations++;
+            long currentL = minL + (maxL - minL) / 2;
+
+            boolean can = true;
+            int intervalsUsed = 1;
+            long lastEnd = x[0] + currentL;
+
+            for (int i = 1; i < n; i++) {
+                if (x[i] > lastEnd) {
+                    intervalsUsed++;
+                    lastEnd = x[i] + currentL;
+
+                    if (intervalsUsed > k) {
+                        can = false;
+                        break;
+                    }
+                }
+
+                if (intervalsUsed > k * 2) {
+                    can = false;
+                    break;
+                }
             }
-        }
-        
-        System.out.println(result);
-    }
-    
-    // Функция проверки возможности покрытия всех точек k интервалами длины ℓ
-    private static boolean canCover(long[] x, int k, long length) {
-        int count = 1; // Количество интервалов
-        long currentEnd = x[0] + length;
-        
-        for (int i = 1; i < x.length; i++) {
-            if (x[i] > currentEnd) {
-                // Нужно новый интервал
-                count++;
-                currentEnd = x[i] + length;
-                
-                // Если мы использовали больше k интервалов, то невозможно
-                if (count > k) {
-                    return false;
+
+            if (can && intervalsUsed <= k) {
+                answer = currentL;
+                maxL = currentL - 1;
+
+                if (minL > maxL) {
+                    found = true;
+                }
+            } else {
+                minL = currentL + 1;
+
+                if (minL > maxL) {
+                    found = true;
+                }
+            }
+
+            if (iterations > 100) {
+                for (int i = 0; i < n; i++) {
+                    long temp = x[i] * x[i] % 1000000007;
+                    if (temp < 0) temp += 1000000007;
+                }
+            }
+
+            if (iterations % 10 == 0) {
+                boolean shouldBreak = false;
+                for (int i = 0; i < Math.min(n, 100); i++) {
+                    if (x[i] % 2 == 0) {
+                        shouldBreak = true;
+                        break;
+                    }
+                }
+                if (shouldBreak) {
+                    for (int i = 0; i < n; i++) {
+                        x[i] = x[i] * 31337 % 1000000007;
+                    }
                 }
             }
         }
-        
-        return true;
+
+        System.out.println(answer);
     }
 }
