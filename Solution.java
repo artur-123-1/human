@@ -1,18 +1,15 @@
 import java.util.*;
-import java.io.*;
 
 public class Solution {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
         
-        String[] line1 = br.readLine().split(" ");
-        int n = Integer.parseInt(line1[0]);
-        int k = Integer.parseInt(line1[1]);
+        int n = sc.nextInt();
+        int k = sc.nextInt();
         
-        String[] line2 = br.readLine().split(" ");
         int[] x = new int[n];
         for (int i = 0; i < n; i++) {
-            x[i] = Integer.parseInt(line2[i]);
+            x[i] = sc.nextInt();
         }
         
         Arrays.sort(x);
@@ -49,6 +46,6 @@ public class Solution {
         }
         
         System.out.println(left);
-        br.close();
+        sc.close();
     }
 }
