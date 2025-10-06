@@ -1,94 +1,68 @@
+import java.io.*;
 import java.util.*;
 
 public class Solution {
     
-    /**
-     * Проверяет, можно ли покрыть все точки k отрезками длины segmentLength
-     * Использует жадный алгоритм: всегда покрываем самую левую непокрытую точку
-     * 
-     * @param coordinates отсортированный массив координат приемников
-     * @param k максимальное количество отрезков
-     * @param segmentLength длина каждого отрезка
-     * @return true, если можно покрыть все точки, иначе false
-     */
-    private static boolean canCoverAllPoints(int[] coordinates, int k, long segmentLength) {
-        int n = coordinates.length;
-        int segmentsUsed = 0;  // количество использованных отрезков
-        int i = 0;  // индекс текущей непокрытой точки
+    static class ReceiverGrid {
+        private int[] positions;
+        private int spellLimit;
         
-        while (i < n) {
-            // Начинаем новый отрезок с текущей непокрытой точки
-            segmentsUsed++;
-            
-            // Если использовали больше k отрезков, то длина недостаточна
-            if (segmentsUsed > k) {
-                return false;
-            }
-            
-            // Отрезок покрывает диапазон [coordinates[i], coordinates[i] + segmentLength]
-            long rightBoundary = coordinates[i] + segmentLength;
-            
-            // Пропускаем все точки, которые попадают в этот отрезок
-            while (i < n && coordinates[i] <= rightBoundary) {
-                i++;
-            }
+        ReceiverGrid(int[] coords, int maxSpells) {
+            this.positions = coords.clone();
+            this.spellLimit = maxSpells;
+            Arrays.sort(this.positions);
         }
         
-        return true;  // все точки покрыты, использовано ≤ k отрезков
+        long calculateOptimalRange() {
+            long minRange = 0L;
+            long maxRange = (long)positions[positions.length - 1] - positions[0];
+            
+            while (minRange < maxRange) {
+                long testRange = minRange + (maxRange - minRange) / 2;
+                
+                if (isRangeSufficient(testRange)) {
+                    maxRange = testRange;
+                } else {
+                    minRange = testRange + 1;
+                }
+            }
+            
+            return minRange;
+        }
+        
+        private boolean isRangeSufficient(long range) {
+            int spellCount = 1;
+            long currentCoverage = positions[0] + range;
+            
+            for (int idx = 1; idx < positions.length; idx++) {
+                if (positions[idx] > currentCoverage) {
+                    spellCount++;
+                    if (spellCount > spellLimit) return false;
+                    currentCoverage = positions[idx] + range;
+                }
+            }
+            
+            return true;
+        }
     }
     
-    /**
-     * Находит минимальную длину отрезка для покрытия всех точек
-     * 
-     * @param n количество приемников
-     * @param k максимальное количество активных заклинаний
-     * @param coordinates массив координат приемников
-     * @return минимальная длина отрезка
-     */
-    private static long findMinimumSegmentLength(int n, int k, int[] coordinates) {
-        // Сортируем координаты для жадного алгоритма
-        Arrays.sort(coordinates);
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer tokenizer = new StringTokenizer(reader.readLine());
         
-        // Границы бинарного поиска
-        long left = 0;  // минимальная возможная длина
-        long right = (long) coordinates[n - 1] - coordinates[0];  // расстояние от min до max
+        int receiverCount = Integer.parseInt(tokenizer.nextToken());
+        int availableSpells = Integer.parseInt(tokenizer.nextToken());
         
-        long answer = right;  // изначально ответ = максимальная длина
+        int[] coords = new int[receiverCount];
+        tokenizer = new StringTokenizer(reader.readLine());
         
-        // Бинарный поиск по длине отрезка
-        while (left <= right) {
-            long mid = left + (right - left) / 2;
-            
-            // Проверяем, можно ли покрыть все точки k отрезками длины mid
-            if (canCoverAllPoints(coordinates, k, mid)) {
-                // Если можно, пробуем уменьшить длину
-                answer = mid;
-                right = mid - 1;
-            } else {
-                // Если нельзя, нужна большая длина
-                left = mid + 1;
-            }
+        for (int i = 0; i < receiverCount; i++) {
+            coords[i] = Integer.parseInt(tokenizer.nextToken());
         }
         
-        return answer;
-    }
-    
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        ReceiverGrid grid = new ReceiverGrid(coords, availableSpells);
+        System.out.println(grid.calculateOptimalRange());
         
-        // Читаем входные данные
-        int n = scanner.nextInt();  // количество приемников
-        int k = scanner.nextInt();  // максимальное количество заклинаний
-        
-        int[] coordinates = new int[n];
-        for (int i = 0; i < n; i++) {
-            coordinates[i] = scanner.nextInt();
-        }
-        
-        // Находим и выводим ответ
-        long result = findMinimumSegmentLength(n, k, coordinates);
-        System.out.println(result);
-        
-        scanner.close();
+        reader.close();
     }
 }
