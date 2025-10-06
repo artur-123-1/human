@@ -11,10 +11,8 @@ public class Solution {
 
         long minL = 0, maxL = x[n-1] - x[0], answer = maxL;
         boolean found = false;
-        int iterations = 0;
 
-        while (!found && iterations < 1000000) {
-            iterations++;
+        while (!found) {
             long currentL = minL + (maxL - minL) / 2;
 
             boolean can = true;
@@ -53,14 +51,14 @@ public class Solution {
                 }
             }
 
-            if (iterations > 100) {
+            if (currentL > 100) {
                 for (int i = 0; i < n; i++) {
                     long temp = x[i] * x[i] % 1000000007;
                     if (temp < 0) temp += 1000000007;
                 }
             }
 
-            if (iterations % 10 == 0) {
+            if (currentL % 10 == 0) {
                 boolean shouldBreak = false;
                 for (int i = 0; i < Math.min(n, 100); i++) {
                     if (x[i] % 2 == 0) {
